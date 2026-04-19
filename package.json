@@ -1,0 +1,49 @@
+{
+  "name": "floating-anki",
+  "version": "0.1.0",
+  "description": "Always-on-top floating flashcard window for macOS. Reads .apkg deck files directly; no desktop Anki required.",
+  "main": "dist-electron/main.js",
+  "license": "MIT",
+  "keywords": ["anki", "flashcards", "spaced-repetition", "electron", "macos", "floating-window"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RafaelIoT/floating-anki"
+  },
+  "scripts": {
+    "dev": "ELECTRON_RUN_AS_NODE= vite",
+    "build": "tsc --noEmit && vite build && electron-builder",
+    "preview": "vite preview",
+    "autostart:install": "bash scripts/install-autostart.sh",
+    "autostart:uninstall": "bash scripts/uninstall-autostart.sh"
+  },
+  "dependencies": {
+    "jszip": "^3.10.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sql.js": "^1.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/sql.js": "^1.4.9",
+    "@vitejs/plugin-react": "^4.3.1",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.1",
+    "vite-plugin-electron": "^0.28.7",
+    "vite-plugin-electron-renderer": "^0.14.5"
+  },
+  "build": {
+    "appId": "com.complear.floating-anki",
+    "productName": "Floating Anki",
+    "directories": { "output": "release" },
+    "files": ["dist/**", "dist-electron/**"],
+    "mac": {
+      "target": "dir",
+      "category": "public.app-category.education",
+      "identity": null
+    }
+  }
+}

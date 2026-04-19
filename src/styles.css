@@ -1,0 +1,115 @@
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #eaeaea;
+  background: #1e1e1e;
+  font-size: 14px;
+  user-select: none;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 6px;
+  background: #151515;
+  border-bottom: 1px solid #2a2a2a;
+}
+.titlebar-drag {
+  flex: 1;
+  height: 100%;
+  -webkit-app-region: drag;
+}
+.titlebar-btn {
+  -webkit-app-region: no-drag;
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 14px;
+}
+.titlebar-btn:hover { color: #fff; }
+
+.card-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 8px;
+  min-height: 0;
+}
+
+.card {
+  flex: 1;
+  overflow: auto;
+  padding: 10px;
+  background: #262626;
+  border-radius: 6px;
+  cursor: pointer;
+  line-height: 1.4;
+  user-select: text;
+}
+.card:hover { background: #2c2c2c; }
+.card * { max-width: 100%; }
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.grade-row {
+  display: flex;
+  gap: 6px;
+}
+.grade {
+  flex: 1;
+  padding: 6px 4px;
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  line-height: 1.1;
+}
+.grade-label { font-size: 12px; }
+.grade-preview { font-size: 10px; opacity: 0.8; }
+.grade-again { background: #c0392b; }
+.grade-again:hover { background: #d0432b; }
+.grade-hard  { background: #d68910; }
+.grade-hard:hover  { background: #e69920; }
+.grade-easy  { background: #27ae60; }
+.grade-easy:hover  { background: #2ebe6a; }
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+select, button {
+  background: #2c2c2c;
+  color: #eaeaea;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+button:hover { background: #363636; }
+
+.muted { color: #888; font-size: 12px; }
+.error { color: #ff6b6b; font-size: 12px; }
