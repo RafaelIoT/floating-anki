@@ -2,7 +2,13 @@
 export {};
 
 type Bounds = { x?: number; y?: number; width: number; height: number };
-type WindowState = { id: string; apkgPath: string | null; bounds: Bounds };
+type Direction = 'normal' | 'inverted';
+type WindowState = {
+  id: string;
+  apkgPath: string | null;
+  bounds: Bounds;
+  direction?: Direction;
+};
 
 declare global {
   interface Window {
@@ -11,6 +17,7 @@ declare global {
         id: string;
         getState: () => Promise<WindowState | null>;
         setApkg: (apkgPath: string | null) => Promise<void>;
+        setDirection: (direction: Direction) => Promise<void>;
       };
       apkg: {
         pick: () => Promise<string | null>;

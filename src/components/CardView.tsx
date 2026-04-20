@@ -2,7 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Card, loadCards } from '../apkg';
 import { Grade, Reviews, grade as applyGrade, isDue, previewLabel } from '../scheduler';
 
-type Props = { apkgPath: string };
+type Direction = 'normal' | 'inverted';
+type Props = { apkgPath: string; direction: Direction };
+
+// Reviews are keyed by card ID for the default ("normal") direction so existing
+// saved state still applies, and by "<id>:i" for the inverted direction — each
+// direction earns its own schedule.
+function reviewKey(cardId: number, direction: Direction): string {
+  return direction === 'inverted' ? `${cardId}:i` : String(cardId);
+}
 
 function shuffle<T>(arr: T[]): T[] {
   const a = arr.slice();
@@ -21,7 +29,7 @@ function formatDelta(ms: number): string {
   return `${Math.round(ms / DAY)}d`;
 }
 
-export default function CardView({ apkgPath }: Props) {
+export default function CardView({ apkgPath, direction }: Props) {
   const [cards, setCards] = useState<Card[] | null>(null);
   const [reviews, setReviews] = useState<Reviews>({});
   const [queue, setQueue] = useState<number[]>([]); // card IDs in study order
@@ -43,14 +51,14 @@ export default function CardView({ apkgPath }: Props) {
       setCards(all);
       setReviews(saved);
       const t = Date.now();
-      const dueIds = all.filter((c) => isDue(saved[String(c.id)], t)).map((c) => c.id);
+      const dueIds = all.filter((c) => isDue(saved[reviewKey(c.id, direction)], t)).map((c) => c.id);
       setQueue(shuffle(dueIds));
       setShowBack(false);
       setNow(t);
     } catch (e) {
       setError((e as Error).message);
     }
-  }, [apkgPath]);
+  }, [apkgPath, direction]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -70,13 +78,17 @@ export default function CardView({ apkgPath }: Props) {
 
   const currentId = queue[0];
   const current = currentId != null ? byId.get(currentId) : undefined;
-  const currentState = currentId != null ? reviews[String(currentId)] : undefined;
+  const currentKey = currentId != null ? reviewKey(currentId, direction) : undefined;
+  const currentState = currentKey != null ? reviews[currentKey] : undefined;
+
+  const frontHtml = current ? (direction === 'inverted' ? current.back : current.front) : '';
+  const backHtml = current ? (direction === 'inverted' ? current.front : current.back) : '';
 
   const onGrade = (g: Grade) => {
-    if (currentId == null) return;
+    if (currentId == null || currentKey == null) return;
     const t = Date.now();
     const nextState = applyGrade(currentState, g, t);
-    const nextReviews: Reviews = { ...reviews, [String(currentId)]: nextState };
+    const nextReviews: Reviews = { ...reviews, [currentKey]: nextState };
     setReviews(nextReviews);
     scheduleSave(nextReviews);
 
@@ -112,9 +124,10 @@ export default function CardView({ apkgPath }: Props) {
   if (cards.length === 0) return <div className="card-area"><p>Deck has no cards.</p></div>;
 
   if (!current) {
-    // Nothing due. Show the soonest upcoming card.
-    const upcoming = Object.values(reviews)
-      .map((s) => s.due)
+    // Nothing due. Show the soonest upcoming card for this direction.
+    const upcoming = cards
+      .map((c) => reviews[reviewKey(c.id, direction)]?.due)
+      .filter((d): d is number => typeof d === 'number')
       .sort((a, b) => a - b)[0];
     return (
       <div className="card-area">
@@ -130,7 +143,7 @@ export default function CardView({ apkgPath }: Props) {
       <div
         className="card"
         onClick={() => setShowBack((v) => !v)}
-        dangerouslySetInnerHTML={{ __html: showBack ? current.back : current.front }}
+        dangerouslySetInnerHTML={{ __html: showBack ? backHtml : frontHtml }}
       />
       {showBack ? (
         <div className="grade-row">

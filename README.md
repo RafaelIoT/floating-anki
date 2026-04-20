@@ -44,6 +44,7 @@ This tool is intentionally minimal. It is **not** an Anki clone — it only read
 - Frameless, always-on-top window that stays visible in fullscreen apps too
 - Loads any `.apkg` file (older Anki format — see [Limitations](#limitations))
 - Click to flip; grade with **Don't know / Hard / Easy** and see a live preview of each button's next-due interval
+- **Flip direction** (`F→B` / `B→F` button in the title bar): study a deck in the reverse direction (e.g. English → French instead of French → English). Each direction keeps its own schedule, so reversing doesn't cannibalise your forward-direction review history.
 - Progress persists to disk, per deck, across launches
 - **Multi-window**: open one window per deck, each with its own position, size, and selected deck. Decks opened in more than one window share progress.
 - **Autostart + watchdog** on macOS via launchd: starts at login and reopens the app within ~10s if you fully quit it
@@ -109,6 +110,14 @@ The small text under each button ("1m", "5m", "4d") is a live preview of when th
 
 When nothing is due, the window shows **All caught up** and a countdown to the next card.
 
+#### Flipping the direction
+
+The title bar has a small **`F→B`** button. Click it to swap front and back for this window — useful when your deck is written in one direction (e.g. foreign → native) but you want to practise recall the other way (native → foreign).
+
+- The setting is **per window**, and persists across restarts.
+- Each direction has its own review schedule. Grading a card in `B→F` mode doesn't affect its `F→B` due date, and vice versa. A fresh direction starts from scratch (all cards are "new" there).
+- The button shows `B→F` when inverted, so you can tell which way the deck is currently oriented.
+
 ### Multiple windows
 
 - Click **+** in the title bar to open a new window. Each window gets its own deck picker.
@@ -161,15 +170,18 @@ reviews-<sha1>.json          # per-deck review state (one file per .apkg)
     {
       "id": "c7a8...",
       "apkgPath": "/Users/you/Decks/japanese.apkg",
-      "bounds": { "x": 100, "y": 100, "width": 340, "height": 260 }
+      "bounds": { "x": 100, "y": 100, "width": 340, "height": 260 },
+      "direction": "normal"
     }
   ]
 }
 ```
 
+`direction` is `"normal"` (front → back, default) or `"inverted"` (back → front). Omitted on windows that have never been flipped.
+
 ### `reviews-<sha1>.json`
 
-Keyed by Anki note ID. `interval` is days (`0` = still in the learning phase with sub-day steps). `due` is a Unix millisecond timestamp.
+Keyed by Anki note ID in the forward direction, or `"<noteId>:i"` for the inverted direction. `interval` is days (`0` = still in the learning phase with sub-day steps). `due` is a Unix millisecond timestamp.
 
 ```json
 {
@@ -178,6 +190,13 @@ Keyed by Anki note ID. `interval` is days (`0` = still in the learning phase wit
     "interval": 4,
     "due": 1713552000000,
     "reps": 3,
+    "lapses": 0
+  },
+  "1234567890:i": {
+    "ease": 2.5,
+    "interval": 1,
+    "due": 1713638400000,
+    "reps": 1,
     "lapses": 0
   }
 }

@@ -23,11 +23,13 @@ Every IPC call from the renderer that needs "this window's" state passes `self.i
 ```
 ┌─────────────────── main process ───────────────────┐
 │ windows: Map<id, BrowserWindow>                    │
-│ config:  { windows: [{ id, apkgPath, bounds }] }   │
+│ config:  { windows: [{ id, apkgPath, bounds,       │
+│                       direction? }] }              │
 │                                                     │
 │ IPC handlers:                                       │
 │   self:state(id)         → WindowState | null      │
 │   self:set-apkg(id, path)                          │
+│   self:set-direction(id, 'normal'|'inverted')      │
 │   window:new             → opens a new window       │
 │   window:close           (from the sender's window) │
 │   apkg:pick              → shows dialog             │
@@ -72,8 +74,8 @@ Every IPC call from the renderer that needs "this window's" state passes `self.i
 
 Two files per deck, all under `app.getPath('userData')` (≈ `~/Library/Application Support/floating-anki/`):
 
-- **`config.json`** — the whole `{ windows: WindowState[] }` structure. Rewritten whenever a window is created, moved, resized, has its deck changed, or is closed.
-- **`reviews-<sha1>.json`** — the `Reviews` map for one deck. `<sha1>` is the first 16 hex chars of `sha1(apkgPath)`. Rewritten on each grade (debounced).
+- **`config.json`** — the whole `{ windows: WindowState[] }` structure. Rewritten whenever a window is created, moved, resized, has its deck changed, has its direction flipped, or is closed.
+- **`reviews-<sha1>.json`** — the `Reviews` map for one deck. `<sha1>` is the first 16 hex chars of `sha1(apkgPath)`. Rewritten on each grade (debounced). Keys are `"<noteId>"` for the normal direction (backward-compatible with pre-direction state) and `"<noteId>:i"` for the inverted direction, so each direction has its own schedule.
 
 The hash is over the **path**, not the file contents. Moving or renaming a `.apkg` starts you over. This is a deliberate tradeoff: hashing contents would be slow on every launch and break if the user updates their deck. If you need identity stability across paths, use a stable directory for your decks.
 
@@ -116,6 +118,7 @@ Some common modifications and where to make them:
 | Goal                                       | Where                                                            |
 |--------------------------------------------|------------------------------------------------------------------|
 | Change grade intervals or ease bounds      | [src/scheduler.ts](../src/scheduler.ts) — top-of-file constants  |
+| Change how the flip direction is keyed     | `reviewKey()` in [src/components/CardView.tsx](../src/components/CardView.tsx) |
 | Render more than first-field / all-rest    | [src/apkg.ts](../src/apkg.ts) `loadCards`                        |
 | Show media (images/audio)                  | extract `media` file in apkg.ts; rewrite `<img>` srcs in CardView|
 | Add a keyboard shortcut                    | `CardView.tsx` (window-scoped) or `main.ts` (global via `globalShortcut`) |

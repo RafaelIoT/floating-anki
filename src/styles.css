@@ -39,6 +39,15 @@ html, body, #root {
   font-size: 14px;
 }
 .titlebar-btn:hover { color: #fff; }
+.titlebar-flip {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  margin-right: 4px;
+}
 
 .card-area {
   flex: 1;

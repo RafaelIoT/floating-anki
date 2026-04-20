@@ -8,6 +8,8 @@ contextBridge.exposeInMainWorld('api', {
     id: windowId,
     getState: () => ipcRenderer.invoke('self:state', windowId),
     setApkg: (p: string | null) => ipcRenderer.invoke('self:set-apkg', windowId, p),
+    setDirection: (d: 'normal' | 'inverted') =>
+      ipcRenderer.invoke('self:set-direction', windowId, d),
   },
   apkg: {
     pick: () => ipcRenderer.invoke('apkg:pick') as Promise<string | null>,

@@ -17,7 +17,13 @@ app.setName('floating-anki');
 })();
 
 type Bounds = { x?: number; y?: number; width: number; height: number };
-type WindowState = { id: string; apkgPath: string | null; bounds: Bounds };
+type Direction = 'normal' | 'inverted';
+type WindowState = {
+  id: string;
+  apkgPath: string | null;
+  bounds: Bounds;
+  direction?: Direction;
+};
 type Config = { windows: WindowState[] };
 
 const DEFAULT_BOUNDS: Bounds = { width: 340, height: 260 };
@@ -145,6 +151,10 @@ ipcMain.handle('self:state', async (_e, id: string) => {
 
 ipcMain.handle('self:set-apkg', async (_e, id: string, apkgPath: string | null) => {
   updateWindowState(id, { apkgPath });
+});
+
+ipcMain.handle('self:set-direction', async (_e, id: string, direction: Direction) => {
+  updateWindowState(id, { direction });
 });
 
 ipcMain.handle('window:new', async () => openNewWindow());
